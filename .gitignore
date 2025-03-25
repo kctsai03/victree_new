@@ -1,0 +1,18 @@
+# Pycharm stuff
+
+.idea/*
+**/__pycache__/*
+**/.ipynb_checkpoints/*
+*.log
+.DS_Store
+# notes
+notes.md
+/img/
+# output dirs
+*_out
+/tests/test_output/
+/test_output/
+/output/
+/src/output/
+/data/
+/configs/

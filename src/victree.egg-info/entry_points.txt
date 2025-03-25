@@ -1,0 +1,3 @@
+[console_scripts]
+victree = victree.main:main
+victree-simul = victree.simul:main

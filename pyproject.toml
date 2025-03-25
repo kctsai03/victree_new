@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "victree"
+version = "0.1.0"
+authors = [
+    {name = "Vittorio Zampinetti", email = "vz@kth.se"},
+    {name = "Harald Melin", email = "haralme@kth.se"},
+]
+description = "VI method for copy-number aware tumor phylogenetics clonal tree reconstruction"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Lagergren-Lab/victree"
+
+[project.scripts]
+victree = "victree.main:main"
+victree-simul = "victree.simul:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
