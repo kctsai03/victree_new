@@ -36,43 +36,19 @@ def AddSelfLoops(G):
 
     return G
 
-# Returns a random successor vertex using the appropriate Markov chain, return the probability
+# Returns a random successor vertex using the appropriate Markov chain
 def RandomSuccessor(G, n):
     successors = list(G.successors(n))
     weights = [G[n][s]['weight'] for s in successors]
 
-    total_weight = sum(weights)
-    probabilities = [w / total_weight for w in weights]
-
-    chosen_successor = random.choices(successors, weights=weights, k=1)[0]
-    chosen_prob = probabilities[successors.index(chosen_successor)]
-
-    return chosen_successor, chosen_prob
-
-# def RandomSuccessor(G, n):
-#     successors = list(G.successors(n))
-#     weights = [G[n][s]['weight'] for s in successors]
-
-#     return random.choices(successors, weights=weights, k=1)[0]
+    return random.choices(successors, weights=weights, k=1)[0]
 
 # Returns a random predecessor vertex using the appropriate Markov chain
 def RandomPredecessor(G, n):
     predecessors = list(G.predecessors(n))
     weights = [G[s][n]['weight'] for s in predecessors]
 
-    total_weight = sum(weights)
-    probabilities = [w / total_weight for w in weights]
-    
-    chosen_predecessor = random.choices(predecessors, weights=weights, k=1)[0]
-    chosen_prob = probabilities[predecessors.index(chosen_predecessor)]
-    return chosen_predecessor, chosen_prob
-
-
-# def RandomPredecessor(G, n):
-#     predecessors = list(G.predecessors(n))
-#     weights = [G[s][n]['weight'] for s in predecessors]
-
-#     return random.choices(predecessors, weights=weights, k=1)[0]
+    return random.choices(predecessors, weights=weights, k=1)[0]
 
 # Chance(epsilon) returns true with probability epsilon.
 def Chance(epsilon):

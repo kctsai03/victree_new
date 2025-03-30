@@ -18,7 +18,6 @@ from typing import Tuple
 import time
 from sampling.wilsons_helper import AddSelfLoops, RandomSuccessor, RandomPredecessor, Chance
 
-
 '''
 WILSON'S ALGORITHM:
   WilsonTreeWithRoot() builds spanning trees from a graph with a specified root.
@@ -56,13 +55,13 @@ OUTPUT: A random spanning tree, the edges, the total calls, and log_g
 '''
 def WilsonTree(G):
     n = len(G.nodes)
+    G_no_self_loops = copy.deepcopy(G)
 
     def Attempt(epsilon):
         rand_predecessor_calls = 0
         Next = [None] * n
         InTree = [False] * n
         num_roots = 0
-        log_g = torch.tensor(0.0)
 
         for i in range(n):
             u = i
@@ -72,40 +71,46 @@ def WilsonTree(G):
                     InTree[u] = True
                     num_roots += 1
                     if num_roots > 1:
-                        return None, rand_predecessor_calls, log_g
+                        return None, rand_predecessor_calls
                 else:
                     rand_predecessor_calls += 1
-                    Next[u], chosen_prob = RandomPredecessor(G, u)
-                    log_g += torch.log(torch.tensor(chosen_prob))
+                    Next[u] = RandomPredecessor(G, u)
                     u = Next[u]
             u = i
             while not InTree[u]:
                 InTree[u] = True
                 u = Next[u]
 
-        return Next, rand_predecessor_calls, log_g
+        return Next, rand_predecessor_calls
 
     G = AddSelfLoops(G)
     epsilon = 1.0
     tree = None
 
     total_calls = 0
-    log_g = 0.0
     while tree == None:
         epsilon = epsilon / 2.0
-        tree, calls, log_g_attempt = Attempt(epsilon)
+        tree, calls = Attempt(epsilon)
         total_calls += calls
-        log_g += log_g_attempt
 
     edges = tuple(sorted((b, a) for a, b in enumerate(tree) if b is not None))
 
     wilson_tree = nx.DiGraph()
     for u, v in edges:
-        weight = G[u][v]['weight']
-        wilson_tree.add_edge(u, v, weight=torch.tensor(torch.log(weight)))
+        weight = (G[u][v]['weight'])
+        wilson_tree.add_edge(u, v, weight=torch.log(weight))
+    log_g = torch.tensor(0.0)
+    for u, v in edges:
+        log_g += calculate_log_g(u, v, G_no_self_loops)
 
     return wilson_tree, edges, total_calls, log_g
 
+def calculate_log_g(a, b, G):
+    #summing log weights of all arcs in G
+    weight_with_arc = torch.tensor([(G[u][v]['weight']) for (u, v) in G.edges()]).sum()
+    # summing log weights of all arcs in G except for the given edge (a, b)
+    weight_without_arc = torch.tensor([(G[u][v]['weight']) for (u, v) in G.edges() if (u, v) != (a, b)]).sum()
 
-
-
+    theta = torch.exp(weight_with_arc - torch.log(torch.exp(weight_with_arc) + torch.exp(weight_without_arc)))
+    log_g = torch.log(theta)
+    return log_g
