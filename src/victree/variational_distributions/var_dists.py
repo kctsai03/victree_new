@@ -27,7 +27,7 @@ from sampling.laris import sample_arborescence_from_weighted_graph, sample_rand_
 from utils.config import Config
 from variational_distributions.observational_variational_distribution import qPsi
 from variational_distributions.variational_distribution import VariationalDistribution
-from sampling.wilsons import WilsonTree
+from sampling.wilsons import WilsonTree, WilsonTreeWithRoot
 
 
 # ---
@@ -1344,17 +1344,22 @@ Sample trees from q(T) with importance sampling.
                 updated_weighted_graph = copy.deepcopy(self.weighted_graph)
                 for u, v, data in updated_weighted_graph.edges(data=True):
                     data['weight'] = torch.exp(data['weight'])
-                t, edges, _, log_g = WilsonTree(updated_weighted_graph)
-                t, log_g = sample_arborescence_from_weighted_graph(self.weighted_graph, temp=log_g_relative_temp)
+                # print("updated_weighted_graph edges: ", updated_weighted_graph.edges(data=True))
+                print("Edge weights of the graph: ", updated_weighted_graph.edges(data=True))
+                t, edges, log_g = WilsonTreeWithRoot(updated_weighted_graph, 0)
+                #t, edges, _, log_g = WilsonTree(updated_weighted_graph)
+                print("t: ", t.edges(data=True))
+                #t, log_g = sample_arborescence_from_weighted_graph(self.weighted_graph, temp=log_g_relative_temp)
                 # print("log_g_victree:: ", log_g)    
                 # print("victree edges: ", t.edges(data=True))
-                # print(" ----------------------- ")
-                print("log_g_wilson: ", log_g)
-                print("wilson edges: ", t.edges(data=True))
                 print(" ----------------------- ")
+                # print("log_g_wilson: ", log_g)
+                # print("wilson edges: ", t.edges(data=True))
+                # print(" ----------------------- ")
 
                 trees.append(t)
                 log_q = t.size(weight='weight')  # unnormalized q(T)
+            
 
                 log_weights[i] = log_q - log_g
                 log_gs[i] = log_g

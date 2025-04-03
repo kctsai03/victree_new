@@ -40,14 +40,21 @@ def WilsonTreeWithRoot(G, r):
     for i in range(n):
         u = i
         while not InTree[u]:
-            Next[u] = RandomSuccessor(G, u)
+            Next[u] = RandomPredecessor(G, u)
             u = Next[u]
         u = i
         while not InTree[u]:
             InTree[u] = True
             u = Next[u]
-
-    return Next
+    edges = tuple(sorted((b, a) for a, b in enumerate(Next) if b is not None))
+    wilson_tree = nx.DiGraph()
+    for u, v in edges:
+        weight = (G[u][v]['weight'])
+        wilson_tree.add_edge(u, v, weight=torch.log(weight))
+    log_g = torch.tensor(0.0)
+    for u, v in edges:
+        log_g += calculate_log_g(u, v, G)
+    return wilson_tree, edges, log_g
 
 '''
 INPUT: A graph G
@@ -100,9 +107,8 @@ def WilsonTree(G):
         weight = (G[u][v]['weight'])
         wilson_tree.add_edge(u, v, weight=torch.log(weight))
     log_g = torch.tensor(0.0)
-    for u, v in edges:
-        log_g += calculate_log_g(u, v, G_no_self_loops)
-
+    # for u, v in edges:
+    #     log_g += calculate_log_g(u, v, G_no_self_loops)
     return wilson_tree, edges, total_calls, log_g
 
 def calculate_log_g(a, b, G):
